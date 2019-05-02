@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  
+  <groupId>org.apache.jspwiki</groupId>
+  <artifactId>jspwiki-tika-searchprovider-builder</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Apache JSPWiki Tika Search provider demo</name>
+  <description>Apache JSPWiki Tika Search provider demo</description>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  
+  <modules>
+    <module>jspwiki-tika-searchprovider-war</module>
+  </modules>
+  
+  <properties>
+    <plugin.compiler>3.8.0</plugin.compiler>
+    <plugin.enforcer>1.4.1</plugin.enforcer>
+    <plugin.cargo.version>1.7.3</plugin.cargo.version>
+    <plugin.war>3.2.2</plugin.war>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <version.jdk>1.8</version.jdk>
+    <version.jspwiki>2.11.0.M4-SNAPSHOT</version.jspwiki>
+    <version.tomcat>8.5.40</version.tomcat>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshot Repository</name>
+      <url>https://repository.apache.org/snapshots</url>
+    </repository>
+  </repositories>
+  
+  <build>
+    <plugins>    
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforcer-validations</id>
+            <goals><goal>enforce</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${plugin.compiler}</version>
+          <configuration>
+            <encoding>${project.build.sourceEncoding}</encoding>
+            <source>${version.jdk}</source>
+            <target>${version.jdk}</target>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${plugin.enforcer}</version>
+          <configuration>
+            <fail>true</fail>
+            <rules>
+              <requireJavaVersion>
+                <message>MUST USE JDK ${version.jdk}</message>
+                <version>${version.jdk}</version>
+              </requireJavaVersion>
+            </rules>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>${plugin.war}</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.cargo</groupId>
+          <artifactId>cargo-maven2-plugin</artifactId>
+          <version>${plugin.cargo.version}</version>
+          <configuration>
+            <container>
+              <!-- https://codehaus-cargo.github.io/cargo/Maven2+Plugin+Reference+Guide.html#Maven2PluginReferenceGuide-container -->
+              <containerId>tomcat8x</containerId>
+              <zipUrlInstaller>
+                <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${version.tomcat}/tomcat-${version.tomcat}.zip</url>
+              </zipUrlInstaller>
+              <output>${project.build.directory}/tomcat8x/logs/container.log</output>
+              <systemProperties>
+                <user.language>en</user.language>
+                <user.region>US</user.region>
+              </systemProperties>
+            </container>
+            <configuration>
+              <type>standalone</type>
+              <home>${project.build.directory}/tomcat8x</home>
+              <properties>
+                <cargo.servlet.port>8080</cargo.servlet.port>
+                <cargo.jvmargs>-XX:MaxPermSize=512m -Xms256m -Xmx3072m -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -XX:+DisableExplicitGC -Xverify:none -Djava.awt.headless=true</cargo.jvmargs>
+              </properties>
+            </configuration>
+            <!-- <deployables>
+              <deployable>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jspwiki-war</artifactId>
+                <type>war</type>
+                <properties>
+                  <context>/JSPWiki</context>
+                </properties>
+              </deployable>
+            </deployables> -->
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
